@@ -15,7 +15,7 @@ def train(lr: float = 1e-3, epochs: int = 50) -> None:
     model = MyAwesomeModel(hidden_feats=[784, 512, 256, 128, 64, 10], p_drop=0.2).cuda()
     train_set, _ = corrupt_mnist()
 
-    path = "dtu_mlops/s1_development_environment/exercise_files/final_exercise"
+    path = "s1_development_environment/exercise_files/final_exercise"
     train_loader = torch.utils.data.DataLoader(train_set, batch_size=64, shuffle=True)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -49,7 +49,7 @@ def train(lr: float = 1e-3, epochs: int = 50) -> None:
 def evaluate(model_checkpoint: str) -> None:
     """Evaluate a trained model."""
     print("Evaluating like my life depends on it")
-    path = "dtu_mlops/s1_development_environment/exercise_files/final_exercise"
+    path = "s1_development_environment/exercise_files/final_exercise"
     model_checkpoint = os.path.join(path, model_checkpoint)
     print(model_checkpoint)
 

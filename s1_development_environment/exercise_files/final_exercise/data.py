@@ -7,7 +7,7 @@ def corrupt_mnist():
     """Return train and test dataloaders for corrupt MNIST."""
     # exchange with the corrupted mnist dataset
     print(os.getcwd())
-    path = "dtu_mlops/data/corruptedmnist/corruptmnist_v1/"
+    path = "data/corruptedmnist/corruptmnist_v1/"
     train_images = []
     train_targets = []
     for i in range(6):
