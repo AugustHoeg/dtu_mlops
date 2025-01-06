@@ -18,3 +18,5 @@ if __name__ == "__main__":
         if not torch.allclose(p1, p2):
             msg = "encountered a difference in parameters, your script is not fully reproducible"
             raise RuntimeError(msg)
+        
+    print("Models are identical, your script is fully reproducible")

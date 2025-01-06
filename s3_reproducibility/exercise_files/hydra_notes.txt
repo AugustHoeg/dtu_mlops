@@ -1,0 +1,49 @@
+Install Hydra:
+pip install hydra-core
+
+# Example use code:
+```python
+import hydra
+from omegaconf import OmegaConf
+
+@hydra.main(config_path="config", config_name="mnist_config.yaml")
+def main(config):
+    print(f"configuration: \n {OmegaConf.to_yaml(config)}")
+    hparams = config.params
+    print(hparams.batch_size)
+
+if __name__ == "__main__":
+    main()
+```
+
+# Example of logging
+```python
+import logging
+
+log = logging.getLogger(__name__)
+
+log.info("Logs this line")
+```
+
+# To overwrite a hyperparameter from command-line (here hparams is the dictionary containing hyperparameters)
+python vae_mnist.py hparams.seed=1234
+
+# add extra keys to config dictionary from command-line:
+python vae_mnist.py hparams.new_param=42 
+or to add a new block "other_params": 
+python vae_mnist.py other_params.new_param=42 
+
+# Using multiple experiments with Hydra:
+
+Recommeded file structure:
+
+|--conf
+|  |--config.yaml
+|  |--experiments
+|     |--exp1.yaml
+|     |--exp2.yaml
+|--my_app.py
+
+# To run hydra experiment with another config file from commmand line:
+python vae_mnist.py -config-path=config/experiments -config-name=exp2.yaml
+# This assumes that you are using the file structure shown above. More info here: https://hydra.cc/docs/advanced/hydra-command-line-flags/
