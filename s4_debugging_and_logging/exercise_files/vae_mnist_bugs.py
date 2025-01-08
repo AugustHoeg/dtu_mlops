@@ -12,7 +12,7 @@ from torchvision.datasets import MNIST
 from torchvision.utils import save_image
 
 # Model Hyperparameters
-dataset_path = "datasets"
+dataset_path = "datasets/MNIST/processed"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 batch_size = 100
 x_dim = 784
@@ -21,12 +21,17 @@ latent_dim = 20
 lr = 1e-3
 epochs = 20
 
+# Load MNIST dataset
+#train_dataset = torch.utils.data.TensorDataset(torch.load(f"{dataset_path}/train.pt"))
+#test_dataset = torch.utils.data.TensorDataset(torch.load(f"{dataset_path}/test.pt"))
 
-# Data loading
-mnist_transform = transforms.Compose([transforms.ToTensor()])
+train_images = torch.load("datasets/MNIST/processed/train_images.pt")
+train_targets = torch.load("datasets/MNIST/processed/train_targets.pt")
+test_images = torch.load("datasets/MNIST/processed/test_images.pt")
+test_targets = torch.load("datasets/MNIST/processed/test_targets.pt")
 
-train_dataset = MNIST(dataset_path, transform=mnist_transform, train=True, download=True)
-test_dataset = MNIST(dataset_path, transform=mnist_transform, train=False, download=True)
+train_dataset = torch.utils.data.TensorDataset(train_images, train_targets)
+test_dataset = torch.utils.data.TensorDataset(test_images, test_targets)
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
@@ -56,7 +61,7 @@ class Encoder(nn.Module):
 
     def reparameterization(self, mean, std):
         """Reparameterization trick to sample z values."""
-        epsilon = torch.randn(*std.shape).to(DEVICE)
+        epsilon = torch.randn_like(std)
         return mean + std * epsilon
 
 
