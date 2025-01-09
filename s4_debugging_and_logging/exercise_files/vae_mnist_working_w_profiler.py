@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
 from torchvision.utils import save_image
 
-from torch.profiler import profile, ProfilerActivity
+from torch.profiler import profile, ProfilerActivity, schedule
 
 
 # Model Hyperparameters
@@ -117,8 +117,25 @@ def loss_function(x, x_hat, mean, log_var):
 
 optimizer = Adam(model.parameters(), lr=lr)
 
+# Define a schedule to profile only a subset of steps
+prof_schedule = schedule(
+    wait=0,  # Number of steps to wait before starting profiling
+    warmup=1,  # Number of steps to warm up before collecting data
+    active=1,  # Number of steps to collect data
+    repeat=1 # Number of times to repeat the cycle
+)
+
+
+log_dir = "./s4_debugging_and_logging/exercise_files/log/vae"
+
 from torch.profiler import profile, tensorboard_trace_handler
-with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], profile_memory=True, record_shapes=True, on_trace_ready=tensorboard_trace_handler("./s4_debugging_and_logging/exercise_files/log/vae")) as prof:
+with profile(schedule=prof_schedule, 
+             activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], 
+             profile_memory=False, 
+             record_shapes=False, 
+             with_stack=True,
+             on_trace_ready=tensorboard_trace_handler(log_dir)
+            ) as prof:
     
     print("Start training VAE w. profiler...")
     model.train()
@@ -139,6 +156,7 @@ with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], profile_m
 
             loss.backward()
             optimizer.step()
+            prof.step()
         print(
             "\tEpoch",
             epoch + 1,
@@ -147,6 +165,10 @@ with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], profile_m
             overall_loss / (batch_idx * batch_size),
         )
     print("Finish!!")
+
+# Ensure profiler is properly closed
+prof.export_stacks("s4_debugging_and_logging/exercise_files/log/vae/profiler_stacks.txt", "self_cpu_time_total")
+print("Profiler data saved.")
 
 # Print some profiler results
 print(prof.key_averages(group_by_input_shape=True).table(sort_by="cpu_time_total", row_limit=30))
